@@ -72,6 +72,15 @@ DeepSeek Harness 的终端客户端（仓库：dsh-ios-roothide）。**主战场
 
 ### 功能
 
+**web 端（iOS 16 Safari 适配）**
+
+- polyfill 补齐 + 软键盘 inset 处理 + 输入法焦点修复 + 移动端设置页布局
+- 面向 Safari 16 的降级构建（\`index-safari16-v2.js\` / \`vendor-safari16.js\`）
+- **侧边栏一键重启**：\`web/restart-button.js\` → \`POST /dsh-purge/restart\`，轮询恢复后自动刷新
+- 安装脚本 \`web/install-web.sh\`，覆盖前自动备份 \`*.bak-web\`
+
+**cli 端**
+
 - 常驻连接零冷启动，每轮 2–4 秒
 - 逐 token 流式输出，思考可见并在结束后收敛
 - \`● Tool(args)\` / \`└ result\` 卡片式工具行

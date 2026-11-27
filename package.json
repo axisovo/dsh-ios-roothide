@@ -1,6 +1,6 @@
 {
   "name": "dsh-ios-roothide",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Terminal client for DeepSeek Harness — Claude-CLI-style streaming, inline diff panels, queue/steer input, zero cold start.",
   "type": "module",
   "bin": {
