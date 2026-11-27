@@ -1,5 +1,16 @@
 # dsh-cli
 
+![platform](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20Linux-blue)
+![iOS](https://img.shields.io/badge/iOS-16.3-black?logo=apple)
+![jailbreak](https://img.shields.io/badge/jailbreak-RootHide%20rootless-orange)
+![node](https://img.shields.io/badge/node-%E2%89%A518-green?logo=nodedotjs)
+![license](https://img.shields.io/github/license/axisovo/dsh-cli)
+![release](https://img.shields.io/github/v/release/axisovo/dsh-cli)
+
+> **一台越狱 iPhone 上的 DeepSeek Harness 终端客户端。**
+> 主战场是 **iOS + RootHide（rootless 越狱）**：没有 JIT、有 AppGroup 路径命名空间差异、
+> 终端只有 80 列——本项目就是为这种环境写的。同源代码在 macOS / Linux 上照常运行。
+
 终端里的 DeepSeek Harness 客户端。**常驻连接，零冷启动**——直连本机 `dsh web` 服务，和网页端共用同一个会话，输入 `/` 就能调命令。
 
 ```
@@ -22,6 +33,22 @@
 
 ▪ Worked for 12s · 3120 in / 284 out · 24 字/秒
 ```
+
+## 跑在什么环境
+
+| | |
+|---|---|
+| **主要目标环境** | **iOS 16.3 + RootHide 越狱（rootless，`/var/jb`）**，改机型 iPhone SE 2 (A13) |
+| **运行时** | Node **v24.21.0 `--jitless`**（越狱机上没有 JIT，所以依赖全部走纯 JS） |
+| **服务端** | 同机运行的 `dsh web`（`@deepseek-ai/dsh` 0.2.2-rc.5），`127.0.0.1:3081` |
+| **其他可用环境** | macOS / Linux / WSL，Node ≥ 18，任意 256 色终端 |
+| **终端** | 宽度 ≥ 60 列体验最佳；< 44 列不画启动横幅 |
+
+越狱环境带来的三个特殊约束，代码里都做了适配：
+
+1. **没有 JIT** —— 不引入原生扩展，`ws` 走纯 JS 实现
+2. **路径命名空间分裂** —— `node` 看到的是 AppGroup 真实路径，shell 看到的是 `/var/mobile` 映射，所以客户端一律用 `DSH_HOME` 显式指定数据目录，从不猜
+3. **越狱前缀 rootless** —— 任何写死的 `/var/mobile/Library/...` 裸路径都会让进程暴露"被越狱污染"，本项目不触碰这些位置
 
 ## 特性
 
