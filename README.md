@@ -11,7 +11,12 @@
 > 主战场是 **iOS + RootHide（rootless 越狱）**：没有 JIT、有 AppGroup 路径命名空间差异、
 > 终端只有 80 列——本项目就是为这种环境写的。同源代码在 macOS / Linux 上照常运行。
 
-终端里的 DeepSeek Harness 客户端。**常驻连接，零冷启动**——直连本机 `dsh web` 服务，和网页端共用同一个会话，输入 `/` 就能调命令。
+**双端项目**：iOS 16 Safari 适配的 **web 端** + 常驻连接的 **cli 端**（`ds`）。
+
+- **web 端** —— 在越狱 iPhone 的 Safari 16 上跑得起来的界面（polyfill + 键盘/输入法兼容 + safari16 构建），外加**侧边栏一键重启**
+- **cli 端** —— 直连同一个 `dsh web` 服务，零冷启动、逐 token 流式、内联 diff，输入 `/` 调命令
+
+两端共用同一个会话：网页里发起的对话，`ds` 里能看到；`ds` 里跑的回合，网页刷新也在。
 
 > 关键词：DeepSeek Harness · iOS 越狱 · RootHide · **dsh-purge-lingjia（破甲）** · web / cli 双端
 
@@ -56,15 +61,16 @@
 
 ### 双端形态
 
-| 端 | 形态 | 是否在本仓库 | 启动方式 |
+| 端 | 形态 | 本仓库提供什么 | 启动方式 |
 |---|---|---|---|
-| **web 端** | 浏览器界面 | ❌ 服务端自带（`dsh-web-frontend`），**本仓库不含** | 启动 `dsh web` 后访问端口即可 |
-| **cli 端** | 本项目（命令 `ds`） | ✅ 全部源码都在这里 | **需要在 `newteam` 中唤起**后再使用 |
+| **web 端** | 浏览器界面 | ✅ **iOS 16 适配层**（polyfill / 键盘兼容 / safari16 构建 / 一键重启） | 装好适配层后启动 `dsh web`，Safari 打开端口 |
+| **cli 端** | 终端界面（命令 `ds`） | ✅ 全部源码 | **需要在 `newteam` 中唤起**后再使用 |
 
-> **本仓库只包含 cli 端。** web 端是 `@deepseek-ai/dsh` 自带的浏览器界面（构建产物约 24 MB），
-> 由服务端直接托管，不在这个项目里；这里只有 16 个文本文件、约 122 KB 的客户端源码。
+> 两端都依赖服务端 `dsh web`：**没有 web 服务，cli 连不上，页面也打不开**。
+> 先把 `dsh web` 跑起来（默认 `127.0.0.1:3081`），再用任一端连接。
 >
-> cli 端依赖 `newteam` 环境唤起，否则拿不到可用的会话/工具上下文；web 端无此要求。
+> web 端的界面壳来自上游 `@deepseek-ai/dsh-web-frontend`；本仓库提供的是**让它在 iOS 16 上能用的那一层**，
+> 以及新增的一键重启。适配层安装见下方「web 端」。
 
 ### 插件兼容
 
@@ -93,11 +99,14 @@
 
 ## 前置条件
 
+**先跑服务端，再选一端接入。** 没有 `dsh web`，cli 连不上、网页也打不开。
+
 - Node.js **18+**
 - 一个正在运行的 `dsh web` 服务（默认 `127.0.0.1:3081`）
-- 该服务的数据目录里有 `.launch-token`
+- 该服务的数据目录里有 `.launch-token`（cli 端认证用）
+- iOS 上跑 web 端还需要装 `web/` 适配层（见「web 端」一节）
 
-> 本项目只是**客户端**。agent 循环、工具、插件、会话存储都在服务端，CLI 通过 HTTP RPC + WebSocket 驱动它。
+> agent 循环、工具、插件、会话存储都在服务端；web 端与 cli 端都只是它的前端。
 
 ## 安装
 
@@ -172,10 +181,57 @@ ds --version
 - 去 `file://` 前缀、`decodeURIComponent`、剥引号、还原 `\ ` 转义空格、展开 `~`
 - 提交时若识别到路径，会先打印 `⇥ 附件 N：文件名` 供确认
 
+## web 端（iOS Safari 适配 + 一键重启）
+
+上游的 web 界面是给桌面现代浏览器构建的，iOS 16 的 Safari 跑起来会白屏或输入框错位。
+本仓库的 `web/` 就是补齐这一层的适配包：
+
+| 文件 | 作用 |
+|---|---|
+| `web/shim/iterator-polyfill.js` | 补 `Iterator` 相关 API（iOS 16 缺） |
+| `web/shim/es-late-polyfill.js` | 补后期 ES 特性，避免首屏直接抛错 |
+| `web/shim/keyboard-inset.js` + `.css` | **软键盘弹出时不遮输入框**（用 `visualViewport` 算 inset） |
+| `web/shim/composer-focus-ios.js` | iOS 输入法焦点漂移、光标跳位修复 |
+| `web/shim/settings-mobile.css` | 移动端设置页布局 |
+| `web/assets/index-safari16-v2.js` | 面向 Safari 16 降级构建的入口 bundle（约 1.1 MB） |
+| `web/assets/vendor-safari16.js` | 同上，依赖 bundle（约 730 KB） |
+| `web/index.html` | 适配后的入口：按顺序注入上述脚本，指向 safari16 构建 |
+| **`web/restart-button.js`** | **侧边栏一键重启**（本仓库新增，见下） |
+
+### 安装
+
+```bash
+# 指向你机器上的 web 前端目录
+./web/install-web.sh ~/.dsh/node_modules/@deepseek-ai/dsh-web-frontend/dist
+
+# 或
+DSH_DIST=/path/to/dist ./web/install-web.sh
+```
+
+脚本会先把要被覆盖的文件备份成 `*.bak-web`，再落地适配层。装完重启 `dsh web`，
+在 Safari 里强刷一次即可。
+
+### 一键重启
+
+`web/restart-button.js` 会在页面左下角挂一个胶囊按钮（避开 iPhone 的 home indicator）：
+
+```
+⟳ 重启
+```
+
+点击后：
+
+1. `POST /dsh-purge/restart` 让服务端重启（依赖 `dsh-purge` 插件）
+2. 轮询首页直到服务重新可用
+3. 自动刷新页面，状态依次显示 `重启中` → `已重启`
+
+端点不存在时按钮显示 `未装 purge` 并提示改用 `tools/restart-dsh.mjs`，不会卡住页面。
+
 ## 项目结构
 
 ```
 bin/ds.mjs         入口（--help / --version）
+web/               web 端 iOS 适配层与一键重启（见上一节）
 src/dsh-live.mjs   主程序：会话、事件渲染、命令、输入区装配
 src/dsh-remote.mjs 协议层：认证、unary RPC、WebSocket 多路复用流
 src/dsh-input.mjs  行编辑器：自管光标、按显示宽度折行、粘贴处理

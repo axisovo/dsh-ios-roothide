@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="DSH" />
+    <link rel="icon" type="image/svg+xml" href="./favicon-dark.svg" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" media="(prefers-color-scheme: light)" />
+    <title>DeepSeek Harness</title>
+    <!-- iOS 16 适配层：先补 polyfill，再挂键盘/输入法兼容，最后加载 safari16 构建 -->
+    <script src="./iterator-polyfill.js"></script>
+    <script src="./es-late-polyfill.js"></script>
+    <script src="./keyboard-inset.js"></script>
+    <script src="./composer-focus-ios.js"></script>
+    <script type="module" crossorigin src="./assets/index-safari16-v2.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/vendor-safari16.js">
+    <link rel="stylesheet" crossorigin href="./assets/vendor-DV2921Zo.css">
+    <link rel="stylesheet" crossorigin href="./assets/index-CSAdOBx6.css">
+    <link rel="stylesheet" href="./settings-mobile.css">
+    <link rel="stylesheet" href="./keyboard-inset.css">
+    <!-- 侧边栏一键重启（本仓库新增） -->
+    <script defer src="./restart-button.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
