@@ -110,11 +110,18 @@
 
 ## 安装
 
+**在 `newteam` 环境里用 git 拉下来就能跑。** 完整步骤见 [`INSTALL.txt`](INSTALL.txt)。
+
 ```bash
-git clone https://github.com/axisovo/dsh-ios-roothide dsh-ios-roothide
+cd <你的 newteam 目录>
+git clone https://github.com/axisovo/dsh-ios-roothide.git
 cd dsh-ios-roothide
-npm install          # 装 ws
-npm link             # 让 ds 进 PATH（可选）
+npm install --omit=dev    # 只装 ws
+node bin/ds.mjs           # 起 cli 端
+```
+
+```bash
+./web/install-web.sh <dsh-web-frontend/dist 路径>   # 装 web 端 iOS 适配层 + 一键重启
 ```
 
 不装依赖也能跑，只是需要系统里能找到 `ws`：
@@ -230,6 +237,7 @@ DSH_DIST=/path/to/dist ./web/install-web.sh
 ## 项目结构
 
 ```
+INSTALL.txt        部署说明（newteam 里 git 拉取 + web 适配层安装）
 bin/ds.mjs         入口（--help / --version）
 web/               web 端 iOS 适配层与一键重启（见上一节）
 src/dsh-live.mjs   主程序：会话、事件渲染、命令、输入区装配

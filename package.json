@@ -11,6 +11,7 @@
     "./protocol": "./src/dsh-remote.mjs"
   },
   "files": [
+    "INSTALL.txt",
     "bin",
     "src",
     "docs",

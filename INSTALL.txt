@@ -1,0 +1,129 @@
+dsh-ios-roothide — 安装与部署
+================================================================
+
+在 newteam 环境里用 git 直接拉下来就能用，不用手工拷贝文件。
+
+
+0. 先决条件
+----------------------------------------------------------------
+  * 服务端 dsh web 已经在跑（默认 127.0.0.1:3081）
+  * 该服务的数据目录里有 .launch-token
+  * Node.js >= 18
+
+  没有 dsh web，cli 连不上，网页也打不开。先起服务端。
+
+
+1. 在 newteam 里克隆
+----------------------------------------------------------------
+  cd <你的 newteam 目录>
+  git clone https://github.com/axisovo/dsh-ios-roothide.git
+  cd dsh-ios-roothide
+
+  # 只装一个依赖（ws）；纯 JS，无 JIT 环境也能用
+  npm install --omit=dev
+
+  想固定某个版本：
+  git clone --branch v0.2.0 https://github.com/axisovo/dsh-ios-roothide.git
+
+
+2. 跑 cli 端（ds）
+----------------------------------------------------------------
+  export DSH_HOME=~/.dsh          # dsh 数据目录，需含 .launch-token
+  export DSH_PORT=3081            # dsh web 端口
+  node bin/ds.mjs
+
+  想直接敲 ds：
+  npm link
+  ds
+
+  越狱 iOS / 无 JIT 环境（客户端与服务端同机）：
+  export DSH_WS_MODULE=/path/to/dsh-home/profiles/dsh-tui/node_modules/ws
+  <node路径> --jitless bin/ds.mjs
+
+  注意：cli 端需要在 newteam 中唤起后再使用，否则拿不到可用的会话/工具上下文。
+
+  自检（不启动界面）：
+  node scripts/upload.mjs --dry-run     # 只列文件
+  node bin/ds.mjs --version
+  node bin/ds.mjs --help
+
+
+3. 装 web 端适配层（iOS Safari 16）
+----------------------------------------------------------------
+  上游 web 界面是给桌面浏览器构建的，iOS 16 会白屏或输入框错位。
+  本仓库的 web/ 就是补齐这层，外加侧边栏一键重启。
+
+  ./web/install-web.sh <dsh-web-frontend/dist 的路径>
+  # 例：./web/install-web.sh ~/.dsh/node_modules/@deepseek-ai/dsh-web-frontend/dist
+
+  脚本会先把会被覆盖的文件备份成 *.bak-web，再落地：
+    - polyfill（iterator / es-late）
+    - 键盘 inset 与输入法焦点修复
+    - safari16 降级构建（index-safari16-v2.js / vendor-safari16.js）
+    - 适配后的 index.html（已注入 restart-button.js）
+    - restart-button.js —— 左下角「⟳ 重启」
+
+  装完重启 dsh web，Safari 强刷一次（或长按刷新 / 无痕窗口打开）。
+
+
+4. 一键重启按钮
+----------------------------------------------------------------
+  页面左下角出现胶囊按钮，避开 iPhone 的 home indicator：
+
+    ⟳ 重启   →  重启中  →  已重启 → 自动刷新
+                          ↘  未装 purge / 失败
+
+  行为：POST /dsh-purge/restart → 轮询首页直到服务回来 → location.reload()
+  依赖 dsh-purge 插件；端点不存在时显示「未装 purge」并提示改用
+  tools/restart-dsh.mjs，不会卡住页面。
+
+  没装 purge 时的替代方式（命令行）：
+  curl -X POST http://127.0.0.1:3081/dsh-purge/restart \
+       -H 'content-type: application/json' -d '{"reason":"manual"}'
+
+
+5. 升级
+----------------------------------------------------------------
+  cd dsh-ios-roothide
+  git pull
+  npm install --omit=dev
+
+  # 如果用过 web 适配层，重跑一次（会重新备份）
+  ./web/install-web.sh <dist 路径>
+
+  # 然后重启 dsh web（页面上的按钮或上面那条 curl）
+
+
+6. 发布新版本（仓库维护者）
+----------------------------------------------------------------
+  GITHUB_TOKEN=ghp_xxx node scripts/upload.mjs     # 提交并推送
+  GITHUB_TOKEN=ghp_xxx node scripts/release.mjs    # 打 tag + 建 Release
+
+  upload.mjs / release.mjs 只用 node:https，不依赖 git 与 curl；
+  令牌只从环境变量读，不写入任何文件。
+
+
+7. 常见问题
+----------------------------------------------------------------
+  「连接失败：找不到启动令牌」
+      DSH_HOME 指错了。确认该目录下存在 .launch-token。
+
+  「找不到 ws 模块」
+      npm install 没跑，或需要 DSH_WS_MODULE 指到 dsh 自带的纯 JS 副本。
+
+  「Cannot find module 'ws'」但已经装过
+      iOS 上 node 与 shell 的路径命名空间不同，用 node 可见的绝对路径。
+
+  cli 里画面错位 / 重复行
+      终端宽度要 >= 60 列；< 44 列不画启动横幅的鲸鱼。
+
+  网页上没出现「⟳ 重启」
+      index.html 被缓存了；Safari 强刷或换无痕窗口。
+      再确认 dist 下的 index.html 里含 <script defer src="./restart-button.js">。
+
+  web 端点 404
+      没装 dsh-purge 插件；用命令行重启代替。
+
+================================================================
+仓库：https://github.com/axisovo/dsh-ios-roothide
+许可：MIT
