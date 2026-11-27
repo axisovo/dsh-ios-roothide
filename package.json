@@ -1,5 +1,5 @@
 {
-  "name": "dsh-cli",
+  "name": "dsh-ios-roothide",
   "version": "0.1.0",
   "description": "Terminal client for DeepSeek Harness — Claude-CLI-style streaming, inline diff panels, queue/steer input, zero cold start.",
   "type": "module",
@@ -41,10 +41,10 @@
   "author": "axisovo",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/axisovo/dsh-cli.git"
+    "url": "git+https://github.com/axisovo/dsh-ios-roothide.git"
   },
   "bugs": {
-    "url": "https://github.com/axisovo/dsh-cli/issues"
+    "url": "https://github.com/axisovo/dsh-ios-roothide/issues"
   },
-  "homepage": "https://github.com/axisovo/dsh-cli#readme"
+  "homepage": "https://github.com/axisovo/dsh-ios-roothide#readme"
 }

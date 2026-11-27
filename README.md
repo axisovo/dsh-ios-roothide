@@ -1,11 +1,11 @@
-# dsh-cli — DeepSeek Harness 终端客户端（iOS RootHide 越狱 / jailbreak / rootless）
+# dsh-ios-roothide — DeepSeek Harness 终端客户端（iOS RootHide 越狱 / jailbreak / rootless）
 
 ![platform](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20Linux-blue)
 ![iOS](https://img.shields.io/badge/iOS-16.3-black?logo=apple)
 ![jailbreak](https://img.shields.io/badge/jailbreak-RootHide%20rootless-orange)
 ![node](https://img.shields.io/badge/node-%E2%89%A518-green?logo=nodedotjs)
-![license](https://img.shields.io/github/license/axisovo/dsh-cli)
-![release](https://img.shields.io/github/v/release/axisovo/dsh-cli)
+![license](https://img.shields.io/github/license/axisovo/dsh-ios-roothide)
+![release](https://img.shields.io/github/v/release/axisovo/dsh-ios-roothide)
 
 > **一台越狱 iPhone 上的 DeepSeek Harness 终端客户端。**
 > 主战场是 **iOS + RootHide（rootless 越狱）**：没有 JIT、有 AppGroup 路径命名空间差异、
@@ -99,8 +99,8 @@
 ## 安装
 
 ```bash
-git clone https://github.com/axisovo/dsh-cli dsh-cli
-cd dsh-cli
+git clone https://github.com/axisovo/dsh-ios-roothide dsh-ios-roothide
+cd dsh-ios-roothide
 npm install          # 装 ws
 npm link             # 让 ds 进 PATH（可选）
 ```

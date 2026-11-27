@@ -21,7 +21,17 @@ const IGNORE_FILES = [/\.log$/, /^\.DS_Store$/, /\.bak$/, /\.bak-/, /^\.reghome$
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const positional = args.filter((a) => !a.startsWith("--"));
-const REPO = positional[0] || path.basename(ROOT);
+/** 默认仓库名：优先 package.json 里的 repository 地址，其次目录名。 */
+function defaultRepoName() {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+    const url = pkg.repository?.url || pkg.homepage || "";
+    const hit = url.match(/github\.com\/[^/]+\/([^/.#]+)/);
+    if (hit) return hit[1];
+  } catch { /* 读不到就用目录名 */ }
+  return path.basename(ROOT);
+}
+const REPO = positional[0] || defaultRepoName();
 const VISIBILITY = positional[1] === "private" ? "private" : "public";
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
 
@@ -63,7 +73,7 @@ function request(method, pathname, body) {
           Authorization: `Bearer ${TOKEN}`,
           Accept: "application/vnd.github+json",
           "X-GitHub-Api-Version": "2022-11-28",
-          "User-Agent": "dsh-cli-uploader",
+          "User-Agent": "dsh-ios-roothide-uploader",
           ...(payload ? { "Content-Type": "application/json", "Content-Length": payload.length } : {}),
         },
       },

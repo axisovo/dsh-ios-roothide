@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const API = "https://api.github.com";
 const OWNER = process.env.GITHUB_OWNER || "axisovo";
-const REPO = process.env.GITHUB_REPO || "dsh-cli";
+const REPO = process.env.GITHUB_REPO || "dsh-ios-roothide";
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
 
 const args = process.argv.slice(2);
@@ -35,7 +35,7 @@ function request(method, pathname, body) {
         Authorization: `Bearer ${TOKEN}`,
         Accept: "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "dsh-cli-release",
+        "User-Agent": "dsh-ios-roothide-release",
         ...(payload ? { "Content-Type": "application/json", "Content-Length": payload.length } : {}),
       },
     }, (res) => {
@@ -54,9 +54,9 @@ function request(method, pathname, body) {
   });
 }
 
-const body = `## dsh-cli ${tag}
+const body = `## dsh-ios-roothide ${tag}
 
-DeepSeek Harness 的终端客户端。**主战场：iOS 16.3 + RootHide 越狱（rootless）**，同源代码在 macOS / Linux 上照常运行。
+DeepSeek Harness 的终端客户端（仓库：dsh-ios-roothide）。**主战场：iOS 16.3 + RootHide 越狱（rootless）**，同源代码在 macOS / Linux 上照常运行。
 
 ### 环境
 
