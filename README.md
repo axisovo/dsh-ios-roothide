@@ -112,16 +112,29 @@
 
 **在 `newteam` 环境里用 git 拉下来就能跑。** 完整步骤见 [`INSTALL.txt`](INSTALL.txt)。
 
+**顺序固定：先 web 端（起服务、开放端口），再 cli 端。** 一次 clone 两端都在仓库里。
+
 ```bash
 cd <你的 newteam 目录>
 git clone https://github.com/axisovo/dsh-ios-roothide.git
 cd dsh-ios-roothide
-npm install --omit=dev    # 只装 ws
-node bin/ds.mjs           # 起 cli 端
+
+# ① web 端：装 iOS 适配层（带「⟳ 重启」按钮）
+./web/install-web.sh <dsh-web-frontend/dist 路径>
+curl -X POST http://127.0.0.1:3081/dsh-purge/restart -d '{"reason":"install"}'   # 或点页面上的按钮
+
+# ② 确认端口通了
+curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3081/
+
+# ③ cli 端
+npm install --omit=dev
+DSH_HOME=~/.dsh DSH_PORT=3081 node bin/ds.mjs
 ```
 
+或者一条命令两端一起装（内部顺序同样是 web → 校验端口 → cli）：
+
 ```bash
-./web/install-web.sh <dsh-web-frontend/dist 路径>   # 装 web 端 iOS 适配层 + 一键重启
+./install.sh                 # 自动找前端目录；加 --no-restart 不动正在跑的服务
 ```
 
 不装依赖也能跑，只是需要系统里能找到 `ws`：
