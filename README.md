@@ -1,4 +1,4 @@
-# dsh-cli
+# dsh-cli — DeepSeek Harness 终端客户端（iOS RootHide 越狱 / jailbreak / rootless）
 
 ![platform](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20Linux-blue)
 ![iOS](https://img.shields.io/badge/iOS-16.3-black?logo=apple)
