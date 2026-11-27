@@ -1,0 +1,20 @@
+#!/bin/sh
+# ds — dsh-ios-roothide 的 cli 端启动器
+set -eu
+
+CONF=/var/jb/etc/dsh-ios-roothide.conf
+[ -f "$CONF" ] && . "$CONF"
+
+DSH_ROOT="${DSH_ROOT:-/var/mobile/dsh/dsh-ios}"
+DSH_HOME="${DSH_HOME:-$DSH_ROOT/dsh-home}"
+DSH_PORT="${DSH_PORT:-3081}"
+DSH_NODE_ARGS="${DSH_NODE_ARGS:---jitless}"
+SHARE=/var/jb/usr/share/dsh-ios-roothide
+
+NODE="${DSH_NODE:-}"
+[ -n "$NODE" ] || NODE="$DSH_ROOT/node"
+[ -x "$NODE" ] || NODE="$(command -v node || true)"
+[ -n "$NODE" ] || { echo "找不到 node；请在 $CONF 里配置 DSH_NODE" >&2; exit 1; }
+
+export DSH_HOME DSH_PORT
+exec "$NODE" $DSH_NODE_ARGS "$SHARE/bin/ds.mjs" "$@"

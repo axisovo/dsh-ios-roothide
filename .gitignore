@@ -4,4 +4,7 @@ node_modules/
 .dsh/
 *.bak
 *.bak-*
+*.bak-web
 scratch/
+dist/
+.build/

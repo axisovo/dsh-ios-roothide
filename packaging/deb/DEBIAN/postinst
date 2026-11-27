@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+SHARE=/var/jb/usr/share/dsh-ios-roothide
+CONF=/var/jb/etc/dsh-ios-roothide.conf
+PLIST=/var/jb/Library/LaunchDaemons/com.axisovo.dsh-web.plist
+
+# 首次安装时生成默认配置（升级不覆盖用户改动）
+if [ ! -f "$CONF" ]; then
+  cp "$SHARE/packaging/dsh-ios-roothide.conf" "$CONF" 2>/dev/null || true
+fi
+
+chmod 755 /var/jb/usr/bin/ds /var/jb/usr/bin/dsh-ui \
+          /var/jb/usr/libexec/dsh-ios-roothide/web.sh 2>/dev/null || true
+chmod 644 "$PLIST" 2>/dev/null || true
+
+# 尝试注册并启用守护进程（不同越狱的 launchctl 语义不一致，失败不影响安装）
+launchctl unload "$PLIST" >/dev/null 2>&1 || true
+launchctl load -w "$PLIST" >/dev/null 2>&1 || true
+
+echo ""
+echo "dsh-ios-roothide 已安装"
+echo "  cli : ds              （需要在 newteam 中唤起）"
+echo "  ui  : dsh-ui          （用浏览器打开本地界面）"
+echo "  配置: $CONF"
+echo "  日志: /var/mobile/dsh/dsh-ios/logs/dsh-web.log"
+echo "  改完配置后："
+echo "    launchctl unload $PLIST && launchctl load -w $PLIST"
+echo ""

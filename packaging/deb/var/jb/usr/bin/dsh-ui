@@ -1,0 +1,11 @@
+#!/bin/sh
+# dsh-ui — 用系统默认浏览器打开本地 web 界面
+set -eu
+CONF=/var/jb/etc/dsh-ios-roothide.conf
+[ -f "$CONF" ] && . "$CONF"
+PORT="${DSH_PORT:-3081}"
+URL="http://127.0.0.1:${PORT}/"
+if command -v uiopen >/dev/null 2>&1; then
+  exec uiopen "$URL"
+fi
+echo "$URL"

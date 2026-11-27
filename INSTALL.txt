@@ -110,6 +110,30 @@ dsh-ios-roothide — 安装与部署
   端口没起来会明确警告「cli 端会连不上」。
 
 
+4.5 作为越狱插件安装（.deb，可选）
+----------------------------------------------------------------
+  不想手工部署的话，可以把两端打成一个 rootless 插件包：
+
+    ./packaging/build-deb.sh
+    dpkg -i dist/dsh-ios-roothide_<ver>_iphoneos-arm64.deb
+
+  或者在 Sileo / Filza 里直接点开 .deb 安装。
+
+  装完得到：
+    /var/jb/usr/bin/ds                     cli 端（需在 newteam 唤起）
+    /var/jb/usr/bin/dsh-ui                 打开本地界面
+    /var/jb/Library/LaunchDaemons/…plist   开机自启 web 服务
+    /var/jb/etc/dsh-ios-roothide.conf      配置（DSH_ROOT / DSH_PORT / DSH_NODE）
+    /var/jb/usr/share/dsh-ios-roothide/    cli 源码 + web 适配层
+
+  前提：设备上已有一份 dsh 安装（提供 node 与 dsh web）。
+  装完把 DSH_ROOT 指过去，再重启守护进程：
+
+    launchctl unload /var/jb/Library/LaunchDaemons/com.axisovo.dsh-web.plist
+    launchctl load -w /var/jb/Library/LaunchDaemons/com.axisovo.dsh-web.plist
+
+  卸载：dpkg -r com.axisovo.dsh-ios-roothide（prerm 会先停守护进程）
+
 5. 升级
 ----------------------------------------------------------------
   cd dsh-ios-roothide

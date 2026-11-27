@@ -201,6 +201,45 @@ ds --version
 - 去 `file://` 前缀、`decodeURIComponent`、剥引号、还原 `\ ` 转义空格、展开 `~`
 - 提交时若识别到路径，会先打印 `⇥ 附件 N：文件名` 供确认
 
+## 越狱插件形式（.deb）
+
+除了源码部署，两端也可以**打成一个 RootHide rootless 插件包**，用 Sileo / Filza / `dpkg -i` 装上就用：
+
+```bash
+./packaging/build-deb.sh              # 产物 dist/dsh-ios-roothide_<ver>_iphoneos-arm64.deb
+dpkg -i dist/dsh-ios-roothide_0.3.0_iphoneos-arm64.deb
+```
+
+装完你会得到：
+
+| 路径 | 作用 |
+|---|---|
+| `/var/jb/usr/bin/ds` | cli 端启动器（`ds`，需在 newteam 中唤起） |
+| `/var/jb/usr/bin/dsh-ui` | 用浏览器打开本地界面（`uiopen http://127.0.0.1:3081/`） |
+| `/var/jb/Library/LaunchDaemons/com.axisovo.dsh-web.plist` | 开机自启的 web 服务（`RunAtLoad` + 退出非 0 时重启） |
+| `/var/jb/usr/libexec/dsh-ios-roothide/web.sh` | 守护进程入口：解析 node、注入 iOS shim、起 `dsh web` |
+| `/var/jb/etc/dsh-ios-roothide.conf` | 配置：`DSH_ROOT` / `DSH_HOME` / `DSH_PORT` / `DSH_NODE` |
+| `/var/jb/usr/share/dsh-ios-roothide/` | cli 源码 + web 适配层 + 文档 |
+
+### 为什么不做成 tweak
+
+本项目**不 hook 任何进程**：web 端是本地页面，cli 端是独立进程，两者都靠 daemon 提供服务。
+所以做成"守护进程 + 命令行"的包最稳：
+
+- 不需要 `MobileSubstrate` / `ElleKit` 注入，RootHide 的隐藏机制与它无关
+- 不会因为某次 App 更新导致 hook 位置漂移
+- 卸载干净：`dpkg -r com.axisovo.dsh-ios-roothide` 即可，`prerm` 会先停掉守护进程
+
+前提：设备上**已经有一份 dsh 安装**（提供 `node` 与 `dsh web`）。装完改 `/var/jb/etc/dsh-ios-roothide.conf`
+里的 `DSH_ROOT` 指向它；改完重启守护进程：
+
+```bash
+launchctl unload /var/jb/Library/LaunchDaemons/com.axisovo.dsh-web.plist
+launchctl load -w /var/jb/Library/LaunchDaemons/com.axisovo.dsh-web.plist
+```
+
+日志：`/var/mobile/dsh/dsh-ios/logs/dsh-web.log`
+
 ## web 端（iOS Safari 适配 + 一键重启）
 
 上游的 web 界面是给桌面现代浏览器构建的，iOS 16 的 Safari 跑起来会白屏或输入框错位。

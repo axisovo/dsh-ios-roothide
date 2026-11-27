@@ -1,0 +1,12 @@
+Package: com.axisovo.dsh-ios-roothide
+Name: DSH iOS RootHide
+Version: __VERSION__
+Architecture: iphoneos-arm64
+Description: DeepSeek Harness 双端适配包（web 端 + cli 端），为 RootHide rootless 越狱准备。
+ 提供 ds 命令行、本地 web 界面（Safari 16 适配 + 一键重启）与开机自启的 web 服务。
+Maintainer: axisovo
+Author: axisovo
+Section: Development
+Priority: optional
+Depends: firmware (>= 15.0)
+Tag: purpose::extension, role::hacker
