@@ -1,0 +1,50 @@
+{
+  "name": "dsh-cli",
+  "version": "0.1.0",
+  "description": "Terminal client for DeepSeek Harness — Claude-CLI-style streaming, inline diff panels, queue/steer input, zero cold start.",
+  "type": "module",
+  "bin": {
+    "ds": "bin/ds.mjs"
+  },
+  "exports": {
+    ".": "./src/dsh-live.mjs",
+    "./protocol": "./src/dsh-remote.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "scripts": {
+    "start": "node bin/ds.mjs",
+    "check": "node --check src/dsh-live.mjs && node --check src/dsh-remote.mjs && node --check src/dsh-input.mjs && node --check src/dsh-anim.mjs && node --check src/dsh-diff.mjs && node --check src/dsh-whale.mjs"
+  },
+  "keywords": [
+    "deepseek",
+    "harness",
+    "cli",
+    "tui",
+    "terminal",
+    "agent",
+    "llm",
+    "coding-agent"
+  ],
+  "license": "MIT",
+  "author": "axisovo",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axisovo/dsh-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/axisovo/dsh-cli/issues"
+  },
+  "homepage": "https://github.com/axisovo/dsh-cli#readme"
+}
