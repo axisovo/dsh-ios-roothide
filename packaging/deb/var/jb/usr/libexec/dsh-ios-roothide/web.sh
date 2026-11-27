@@ -5,6 +5,11 @@ set -eu
 CONF=/var/jb/etc/dsh-ios-roothide.conf
 [ -f "$CONF" ] && . "$CONF"
 
+SHARE_DIR=/var/jb/usr/share/dsh-ios-roothide
+# 自带运行时的包优先用自己的；否则退回设备上已有的 dsh 安装
+if [ -z "${DSH_ROOT:-}" ] && [ -x "$SHARE_DIR/runtime/node" ]; then
+  DSH_ROOT="$SHARE_DIR/runtime"
+fi
 DSH_ROOT="${DSH_ROOT:-/var/mobile/dsh/dsh-ios}"
 DSH_HOME="${DSH_HOME:-$DSH_ROOT/dsh-home}"
 DSH_PORT="${DSH_PORT:-3081}"

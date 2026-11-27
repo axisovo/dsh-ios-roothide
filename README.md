@@ -206,9 +206,23 @@ ds --version
 除了源码部署，两端也可以**打成一个 RootHide rootless 插件包**，用 Sileo / Filza / `dpkg -i` 装上就用：
 
 ```bash
-./packaging/build-deb.sh              # 产物 dist/dsh-ios-roothide_<ver>_iphoneos-arm64.deb
-dpkg -i dist/dsh-ios-roothide_0.3.0_iphoneos-arm64.deb
+./packaging/build-deb.sh --tier=slim   # 约 5 MB：只用设备已有的 dsh
+./packaging/build-deb.sh --tier=cli    # 约 41 MB：自带裁剪过的运行时，终端可用
+./packaging/build-deb.sh --tier=full   # cli + web 适配层（含一键重启）
+dpkg -i dist/dsh-ios-roothide_<ver>_iphoneos-arm64.deb
 ```
+
+| 档位 | deb | 安装后 | 说明 |
+|---|---|---|---|
+| `slim` | ≈ 5 MB | ≈ 6 MB | 依赖设备已有的 dsh 安装 |
+| `cli` | **≈ 41 MB** | ≈ 642 MB | 自带 node + 裁剪运行时；实测启动 **49 s**（全量 88 s） |
+| `full` | ≈ 43 MB | ≈ 668 MB | 再加 web 适配层与一键重启 |
+
+裁剪掉的东西：`libreoffice-kit-wasm`（146 MB，WASM 在 jitless 下根本不能跑）、
+`documentpreview` / `experimental-*`（共 97 MB）、`*.map` / `*.d.ts` / `*.md` / `tests` / `docs`。
+
+移动端形态（PWA / WebClip / 原生壳 App 等七种方案的对比与推荐）见
+[docs/MOBILE-OPTIONS.md](docs/MOBILE-OPTIONS.md)。
 
 装完你会得到：
 

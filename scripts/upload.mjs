@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const API = "https://api.github.com";
 
-const IGNORE_DIRS = new Set([".git", "node_modules", ".reghome", "scratch"]);
+const IGNORE_DIRS = new Set([".git", "node_modules", ".reghome", "scratch", "dist", ".build"]);
 const IGNORE_FILES = [/\.log$/, /^\.DS_Store$/, /\.bak$/, /\.bak-/, /^\.reghome$/, /^\.smoke\.out$/, /^\.resume\.out$/];
 
 const args = process.argv.slice(2);
